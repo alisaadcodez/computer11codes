@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AKUEB Python Code Bank</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0d0d0d;--paper:#f5f2eb;--paper2:#ede9df;--paper3:#e4dfd3;
+  --code-bg:#1a1814;--code-bg2:#231f1a;--code-border:#3a3530;
+  --green:#00c896;--green2:#00a87e;--amber:#e8a020;--red:#e05050;
+  --blue:#5b9cf6;--purple:#b07ef8;--cyan:#4ecdc4;--pink:#f472b6;
+  --comment:#6b6560;--keyword:#e8a020;--string:#00c896;--func:#5b9cf6;
+  --num:#b07ef8;--op:#e05050;
+  --accent:#e8a020;--accent2:#1a1814;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--paper);color:var(--ink);
+  font-family:'DM Sans',sans-serif;font-size:15px;line-height:1.6;
+  min-height:100vh;
+}
+
+/* ── NOISE OVERLAY ── */
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity:0.4;
+}
+
+/* ── HEADER ── */
+header{
+  position:sticky;top:0;z-index:100;
+  background:var(--ink);color:var(--paper);
+  padding:0 2rem;
+  display:flex;align-items:stretch;justify-content:space-between;
+  border-bottom:3px solid var(--accent);
+  min-height:64px;
+}
+.hbrand{
+  display:flex;align-items:center;gap:14px;
+  border-right:1px solid rgba(255,255,255,0.1);
+  padding-right:2rem;
+}
+.hbrand .logo{
+  font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:0.05em;
+  color:var(--accent);line-height:1;
+}
+.hbrand .sub{font-size:10px;color:rgba(255,255,255,0.4);font-family:'IBM Plex Mono',monospace;margin-top:2px;}
+.hstats{display:flex;align-items:center;gap:0;}
+.hstat{
+  padding:0 1.25rem;border-right:1px solid rgba(255,255,255,0.1);
+  display:flex;flex-direction:column;justify-content:center;height:100%;
+}
+.hstat .n{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--accent);line-height:1;}
+.hstat .l{font-size:9px;font-family:'IBM Plex Mono',monospace;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.08em;margin-top:2px;}
+.hsearch{
+  padding:0 1.5rem;display:flex;align-items:center;gap:10px;
+}
+.hsearch input{
+  background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);
+  border-radius:5px;padding:7px 12px;color:var(--paper);
+  font-family:'IBM Plex Mono',monospace;font-size:12px;
+  width:220px;outline:none;transition:border-color .2s;
+}
+.hsearch input::placeholder{color:rgba(255,255,255,0.3);}
+.hsearch input:focus{border-color:var(--accent);}
+
+/* ── LAYOUT ── */
+.app{display:flex;height:calc(100vh - 67px);}
+
+/* ── SIDEBAR ── */
+aside{
+  width:270px;flex-shrink:0;
+  background:var(--paper2);
+  border-right:2px solid var(--ink);
+  overflow-y:auto;
+  scrollbar-width:thin;scrollbar-color:var(--paper3) transparent;
+}
+.sb-section{border-bottom:1px solid var(--paper3);}
+.sb-title{
+  padding:10px 16px;
+  font-family:'Bebas Neue',sans-serif;font-size:0.95rem;letter-spacing:0.06em;
+  background:var(--ink);color:var(--paper);
+  display:flex;align-items:center;justify-content:space-between;
+  cursor:pointer;user-select:none;
+}
+.sb-title .cnt{
+  font-family:'IBM Plex Mono',monospace;font-size:10px;
+  background:var(--accent);color:var(--ink);
+  padding:2px 6px;border-radius:3px;font-weight:600;
+}
+.sb-items{overflow:hidden;max-height:500px;transition:max-height .3s ease;}
+.sb-items.collapsed{max-height:0;}
+.sb-item{
+  padding:8px 16px 8px 20px;cursor:pointer;
+  transition:all .15s;border-left:3px solid transparent;
+  display:flex;align-items:flex-start;gap:8px;
+  font-size:12.5px;color:#444;
+}
+.sb-item:hover{background:var(--paper3);border-left-color:var(--paper3);}
+.sb-item.on{background:#fff;border-left-color:var(--accent);color:var(--ink);}
+.sb-item .ico{font-size:13px;flex-shrink:0;margin-top:1px;}
+.sb-item .nm{line-height:1.35;}
+.sb-item .tag{
+  margin-left:auto;flex-shrink:0;font-size:9px;
+  font-family:'IBM Plex Mono',monospace;
+  background:var(--paper3);padding:1px 5px;border-radius:3px;color:#888;
+  margin-top:2px;
+}
+.sb-item.on .tag{background:var(--ink);color:var(--paper);}
+
+/* ── MAIN ── */
+main{
+  flex:1;overflow-y:auto;
+  padding:2rem;
+  scrollbar-width:thin;scrollbar-color:var(--paper3) transparent;
+}
+
+/* WELCOME */
+.welcome{max-width:640px;margin:3rem auto;text-align:center;}
+.welcome .big{
+  font-family:'Bebas Neue',sans-serif;font-size:3.5rem;letter-spacing:0.03em;
+  line-height:1;color:var(--ink);margin-bottom:.5rem;
+}
+.welcome .big span{color:var(--accent);}
+.welcome p{color:#666;font-size:14px;line-height:1.7;margin-bottom:1.5rem;}
+.welcome-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:1.5rem;}
+.wg-card{
+  background:var(--ink);color:var(--paper);
+  padding:14px;border-radius:6px;text-align:left;
+  font-family:'IBM Plex Mono',monospace;
+}
+.wg-card .n{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:var(--accent);}
+.wg-card .l{font-size:10px;color:rgba(255,255,255,0.5);margin-top:2px;}
+
+/* TOPIC VIEW */
+.topic-header{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;
+  margin-bottom:1.5rem;flex-wrap:wrap;
+}
+.topic-header h2{
+  font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:0.03em;
+}
+.topic-header .desc{font-size:13px;color:#666;margin-top:3px;}
+.th-tags{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px;}
+.th-tag{
+  font-size:10px;font-family:'IBM Plex Mono',monospace;
+  padding:3px 8px;border-radius:3px;border:1px solid var(--paper3);color:#666;
+}
+
+/* CODE CARDS */
+.code-section{margin-bottom:2.5rem;}
+.section-label{
+  font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:0.06em;
+  color:var(--ink);margin-bottom:.85rem;
+  padding-bottom:.4rem;border-bottom:2px solid var(--ink);
+  display:flex;align-items:center;gap:10px;
+}
+.section-label .pill{
+  font-family:'IBM Plex Mono',monospace;font-size:9px;
+  padding:2px 7px;border-radius:3px;font-weight:600;font-style:normal;
+}
+.pill-xi{background:#e8f5e9;color:#2e7d32;border:1px solid #a5d6a7;}
+.pill-xii{background:#e3f2fd;color:#1565c0;border:1px solid #90caf9;}
+
+.code-card{
+  background:var(--code-bg);border:1px solid var(--code-border);
+  border-radius:8px;margin-bottom:12px;
+  overflow:hidden;font-family:'IBM Plex Mono',monospace;
+  box-shadow:3px 3px 0 rgba(0,0,0,0.15);
+  transition:transform .15s,box-shadow .15s;
+}
+.code-card:hover{transform:translateY(-1px);box-shadow:4px 5px 0 rgba(0,0,0,0.2);}
+
+.card-header{
+  padding:9px 14px;background:var(--code-bg2);
+  border-bottom:1px solid var(--code-border);
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+}
+.card-dots{display:flex;gap:5px;}
+.dot{width:10px;height:10px;border-radius:50%;}
+.dot-r{background:#e05050;}
+.dot-y{background:#e8a020;}
+.dot-g{background:#00c896;}
+.card-title{
+  font-size:11px;color:rgba(255,255,255,0.6);flex:1;
+  overflow:hidden;white-space:nowrap;text-overflow:ellipsis;
+}
+.card-meta{display:flex;gap:6px;align-items:center;}
+.cm-tag{
+  font-size:9px;padding:2px 6px;border-radius:3px;
+  background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.45);
+}
+.cm-tag.exam{background:rgba(232,160,32,0.18);color:var(--amber);}
+.cm-tag.prac{background:rgba(0,200,150,0.15);color:var(--green);}
+.copy-btn{
+  font-size:9px;padding:3px 8px;border-radius:3px;
+  background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);
+  color:rgba(255,255,255,0.5);cursor:pointer;transition:all .15s;
+}
+.copy-btn:hover{background:var(--amber);color:var(--ink);border-color:var(--amber);}
+.copy-btn.copied{background:var(--green);color:var(--ink);border-color:var(--green);}
+
+.card-desc{
+  padding:8px 14px;background:rgba(255,255,255,0.025);
+  border-bottom:1px solid var(--code-border);
+  font-size:11px;color:rgba(255,255,255,0.45);font-family:'DM Sans',sans-serif;
+}
+
+pre{
+  padding:14px 16px;overflow-x:auto;font-size:12.5px;line-height:1.65;
+  scrollbar-width:thin;scrollbar-color:#3a3530 transparent;
+  margin:0;
+}
+.cm{color:#6b6560;}
+.kw{color:#e8a020;font-weight:500;}
+.st{color:#00c896;}
+.fn{color:#5b9cf6;}
+.nm{color:#b07ef8;}
+.op{color:#e05050;}
+.bi{color:#4ecdc4;}
+.cn{color:#f472b6;}
+.hl{background:rgba(232,160,32,0.1);display:inline-block;width:100%;}
+
+/* SEARCH VIEW */
+.sr-header{
+  font-family:'Bebas Neue',sans-serif;font-size:1.5rem;
+  margin-bottom:1.5rem;padding-bottom:.5rem;
+  border-bottom:2px solid var(--ink);
+}
+.sr-card{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:12px;background:var(--paper2);border:1px solid var(--paper3);
+  border-radius:6px;margin-bottom:10px;cursor:pointer;transition:all .15s;
+}
+.sr-card:hover{background:#fff;border-color:var(--ink);}
+.sr-badge{
+  font-family:'IBM Plex Mono',monospace;font-size:9px;
+  padding:3px 7px;border-radius:3px;background:var(--ink);color:var(--paper);
+  flex-shrink:0;margin-top:2px;
+}
+.sr-title{font-size:13px;font-weight:500;}
+.sr-sub{font-size:11px;color:#888;margin-top:2px;font-family:'IBM Plex Mono',monospace;}
+
+.hidden{display:none!important;}
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-thumb{background:var(--paper3);border-radius:3px;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hbrand">
+    <div>
+      <div class="logo">AKUEB Python</div>
+      <div class="sub">HSSC-1 &amp; HSSC-2 Code Reference</div>
+    </div>
+  </div>
+  <div class="hstats">
+    <div class="hstat"><div class="n" id="st-topics">14</div><div class="l">Topics</div></div>
+    <div class="hstat"><div class="n" id="st-codes">0</div><div class="l">Code Examples</div></div>
+  </div>
+  <div class="hsearch">
+    <input type="text" placeholder="Search programs…" id="searchBox" oninput="doSearch(this.value)">
+  </div>
+</header>
+
+<div class="app">
+<aside id="sidebar"></aside>
+<main id="main">
+
+<div class="welcome" id="welcomeScreen">
+  <div class="big">Python<br><span>Code Bank</span></div>
+  <p>Every type of Python program that can be asked in your AKUEB HSSC examination — mapped to SLOs from Topics 3 &amp; 10 of the syllabus. Select a category from the sidebar to explore.</p>
+  <div class="welcome-grid" id="welcomeGrid"></div>
+</div>
+
+<div id="topicView" class="hidden"></div>
+<div id="searchView" class="hidden"></div>
+</main>
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// DATA  — every code category with full examples
+// ─────────────────────────────────────────────────────────────────────────────
+const CATS = [
+  // ── GRADE XI ──────────────────────────────────────────────────────────────
+  {
+    id:"comments", grade:"XI", icon:"💬", title:"Comments & Program Structure",
+    slo:"3.1.7–3.1.8", desc:"Single-line and multi-line comments; program headers.",
+    codes:[
+      { title:"Single-line and multi-line comments", tags:["Practical","CRQ"],
+        desc:"Write a program using both comment types to explain each section.",
+        code:`<span class="cm"># Single-line comment — describes the next line</span>
+<span class="kw">print</span>(<span class="st">"Hello, AKUEB!"</span>)
+
+<span class="cm">"""
+Multi-line comment (docstring).
+This program demonstrates both comment types.
+Author: Ali Saad
+"""</span>
+
+<span class="cn">name</span> = <span class="st">"Python"</span>      <span class="cm"># variable assignment</span>
+<span class="kw">print</span>(<span class="cn">name</span>)` },
+    ]
+  },
+  {
+    id:"datatypes", grade:"XI", icon:"📦", title:"Data Types & Variables",
+    slo:"3.4.1–3.4.5", desc:"int, float, str, bool; local/global; type casting; valid names.",
+    codes:[
+      { title:"Demonstrate all five data types", tags:["Practical","MCQ"],
+        desc:"Declare variables of each type and print using type().",
+        code:`<span class="cn">age</span>     = <span class="nm">17</span>          <span class="cm"># int</span>
+<span class="cn">gpa</span>     = <span class="nm">3.85</span>        <span class="cm"># float</span>
+<span class="cn">name</span>    = <span class="st">"Ali Saad"</span>  <span class="cm"># str</span>
+<span class="cn">passed</span>  = <span class="kw">True</span>        <span class="cm"># bool</span>
+<span class="cn">initial</span> = <span class="st">'A'</span>         <span class="cm"># char (str of length 1)</span>
+
+<span class="kw">for</span> <span class="cn">var</span> <span class="kw">in</span> [<span class="cn">age</span>, <span class="cn">gpa</span>, <span class="cn">name</span>, <span class="cn">passed</span>, <span class="cn">initial</span>]:
+    <span class="kw">print</span>(<span class="fn">type</span>(<span class="cn">var</span>), <span class="st">"→"</span>, <span class="cn">var</span>)` },
+      { title:"Local vs Global variables", tags:["CRQ","ERQ"],
+        desc:"Demonstrate scope difference using global keyword.",
+        code:`<span class="cn">score</span> = <span class="nm">100</span>          <span class="cm"># global variable</span>
+
+<span class="kw">def</span> <span class="fn">update</span>():
+    <span class="kw">global</span> <span class="cn">score</span>
+    <span class="cn">local_bonus</span> = <span class="nm">10</span>  <span class="cm"># local variable</span>
+    <span class="cn">score</span> += <span class="cn">local_bonus</span>
+    <span class="kw">print</span>(<span class="st">"Inside function — score:"</span>, <span class="cn">score</span>)
+
+<span class="fn">update</span>()
+<span class="kw">print</span>(<span class="st">"Outside function — score:"</span>, <span class="cn">score</span>)` },
+      { title:"Implicit and explicit type casting", tags:["Practical","CRQ"],
+        desc:"Show automatic and manual type conversion.",
+        code:`<span class="cm"># Implicit casting</span>
+<span class="cn">x</span> = <span class="nm">5</span>          <span class="cm"># int</span>
+<span class="cn">y</span> = <span class="nm">2.0</span>        <span class="cm"># float</span>
+<span class="cn">z</span> = <span class="cn">x</span> + <span class="cn">y</span>      <span class="cm"># Python auto-converts x to float</span>
+<span class="kw">print</span>(<span class="fn">type</span>(<span class="cn">z</span>), <span class="cn">z</span>)   <span class="cm"># float 7.0</span>
+
+<span class="cm"># Explicit casting</span>
+<span class="cn">num_str</span> = <span class="st">"42"</span>
+<span class="cn">num_int</span> = <span class="fn">int</span>(<span class="cn">num_str</span>)   <span class="cm"># str → int</span>
+<span class="cn">num_flt</span> = <span class="fn">float</span>(<span class="cn">num_str</span>) <span class="cm"># str → float</span>
+<span class="kw">print</span>(<span class="cn">num_int</span> + <span class="nm">8</span>)       <span class="cm"># 50</span>` },
+    ]
+  },
+  {
+    id:"io", grade:"XI", icon:"⌨️", title:"Input / Output & eval()",
+    slo:"3.5.1–3.5.4", desc:"input(), print(), eval() for user interaction.",
+    codes:[
+      { title:"Basic input and output", tags:["Practical","MCQ"],
+        desc:"Take name and age from user and display formatted output.",
+        code:`<span class="cn">name</span> = <span class="fn">input</span>(<span class="st">"Enter your name: "</span>)
+<span class="cn">age</span>  = <span class="fn">int</span>(<span class="fn">input</span>(<span class="st">"Enter your age: "</span>))
+
+<span class="kw">print</span>(<span class="st">"Hello,"</span>, <span class="cn">name</span> + <span class="st">"!"</span>)
+<span class="kw">print</span>(<span class="st">f"You are </span><span class="nm">{<span class="cn">age</span>}</span><span class="st"> years old."</span>)
+<span class="kw">print</span>(<span class="st">"Next year you will be"</span>, <span class="cn">age</span> + <span class="nm">1</span>)` },
+      { title:"Using eval() to evaluate expressions", tags:["Practical","CRQ"],
+        desc:"eval() converts a string to a Python expression and evaluates it.",
+        code:`<span class="cm"># eval() evaluates a string as a Python expression</span>
+<span class="cn">expr</span> = <span class="fn">input</span>(<span class="st">"Enter a math expression: "</span>)
+<span class="cn">result</span> = <span class="fn">eval</span>(<span class="cn">expr</span>)
+<span class="kw">print</span>(<span class="st">"Result:"</span>, <span class="cn">result</span>)
+
+<span class="cm"># Example: user types  3 * (4 + 2)  → result = 18</span>
+
+<span class="cm"># eval with two inputs</span>
+<span class="cn">a</span>, <span class="cn">b</span> = <span class="fn">eval</span>(<span class="fn">input</span>(<span class="st">"Enter two numbers (comma-separated): "</span>))
+<span class="kw">print</span>(<span class="st">"Sum:"</span>, <span class="cn">a</span> + <span class="cn">b</span>)` },
+    ]
+  },
+  {
+    id:"operators", grade:"XI", icon:"➕", title:"Operators",
+    slo:"3.6.1–3.6.3", desc:"Arithmetic, bitwise, comparison, logical operators.",
+    codes:[
+      { title:"All arithmetic operators", tags:["Practical","MCQ"],
+        desc:"Demonstrate +, -, *, /, //, %, ** with labelled output.",
+        code:`<span class="cn">a</span>, <span class="cn">b</span> = <span class="fn">int</span>(<span class="fn">input</span>(<span class="st">"a: "</span>)), <span class="fn">int</span>(<span class="fn">input</span>(<span class="st">"b: "</span>))
+
+<span class="kw">print</span>(<span class="st">f"Addition:       </span><span class="nm">{<span class="cn">a</span>}</span><span class="st"> + </span><span class="nm">{<span class="cn">b</span>}</span><span class="st"> = </span><span class="nm">{<span class="cn">a</span>+<span class="cn">b</span>}</span><span class="st">"</span>)
+<span class="kw">print</span>(<span class="st">f"Subtraction:    </span><span class="nm">{<span class="cn">a</span>}</span><span class="st"> - </span><span class="nm">{<span class="cn">b</span>}</span><span class="st"> = </span><span class="nm">{<span class="cn">a</span>-<span class="cn">b</span>}</span><span class="st">"</span>)
+<span class="kw">print</span>(<span class="st">f"Multiplication: </span><span class="nm">{<span class="cn">a</span>}</span><span class="st"> * </span><span class="nm">{<span class="cn">b</span>}</span><span class="st"> = </span><span class="nm">{<span class="cn">a</span>*<span class="cn">b</span>}</span><span class="st">"</span>)
+<span class="kw">print</span>(<span class="st">f"Division:       </span><span class="nm">{<span class="cn">a</span>}</span><span class="st"> / </span><span class="nm">{<span class="cn">b</span>}</span><span class="st"> = </span><span class="nm">{<span class="cn">a</span>/<span class="cn">b</span>:.2f}</span><span class="st">"</span>)
+<span class="kw">print</span>(<span class="st">f"Floor Div:      </span><span class="nm">{<span class="cn">a</span>}</span><span class="st"> // </span><span class="nm">{<span class="cn">b</span>}</span><span class="st"> = </span><span class="nm">{<span class="cn">a</span>//<span class="cn">b</span>}</span><span class="st">"</span>)
+<span class="kw">print</span>(<span class="st">f"Modulus:        </span><span class="nm">{<span class="cn">a</span>}</span><span class="st"> % </span><span class="nm">{<span class="cn">b</span>}</span><span class="st"> = </span><span class="nm">{<span class="cn">a</span>%<span class="cn">b</span>}</span><span class="st">"</span>)
+<span class="kw">print</span>(<span class="st">f"Exponent:       </span><span class="nm">{<span class="cn">a</span>}</span><span class="st"> ** </span><span class="nm">{<span class="cn">b</span>}</span><span class="st"> = </span><span class="nm">{<span class="cn">a</span>**<span class="cn">b</span>}</span><span class="st">"</span>)` },
+      { title:"Bitwise operators", tags:["Practical","MCQ"],
+        desc:"AND, OR, XOR, NOT, left-shift, right-shift on integers.",
+        code:`<span class="cn">a</span>, <span class="cn">b</span> = <span class="nm">12</span>, <span class="nm">10</span>    <span class="cm"># 1100, 1010 in binary</span>
+
+<span class="kw">print</span>(<span class="st">f"a &amp; b  (AND)    = </span><span class="nm">{<span class="cn">a</span> &amp; <span class="cn">b</span>}</span><span class="st">"</span>)   <span class="cm"># 1000 = 8</span>
+<span class="kw">print</span>(<span class="st">f"a | b  (OR)     = </span><span class="nm">{<span class="cn">a</span> | <span class="cn">b</span>}</span><span class="st">"</span>)   <span class="cm"># 1110 = 14</span>
+<span class="kw">print</span>(<span class="st">f"a ^ b  (XOR)    = </span><span class="nm">{<span class="cn">a</span> ^ <span class="cn">b</span>}</span><span class="st">"</span>)   <span class="cm"># 0110 = 6</span>
+<span class="kw">print</span>(<span class="st">f"~a     (NOT)    = </span><span class="nm">{~<span class="cn">a</span>}</span><span class="st">"</span>)      <span class="cm"># -(a+1) = -13</span>
+<span class="kw">print</span>(<span class="st">f"a &lt;&lt; 1 (L-shift)= </span><span class="nm">{<span class="cn">a</span> &lt;&lt; <span class="nm">1</span>}</span><span class="st">"</span>) <span class="cm"># 24</span>
+<span class="kw">print</span>(<span class="st">f"a &gt;&gt; 1 (R-shift)= </span><span class="nm">{<span class="cn">a</span> &gt;&gt; <span class="nm">1</span>}</span><span class="st">"</span>) <span class="cm"># 6</span>` },
+      { title:"Comparison and logical operators", tags:["Practical","CRQ"],
+        desc:"All six comparison operators plus and, or, not.",
+        code:`<span class="cn">x</span>, <span class="cn">y</span> = <span class="nm">8</span>, <span class="nm">5</span>
+
+<span class="cm"># Comparison operators</span>
+<span class="kw">print</span>(<span class="cn">x</span> <span class="op">==</span> <span class="cn">y</span>,  <span class="cn">x</span> <span class="op">!=</span> <span class="cn">y</span>)   <span class="cm"># False True</span>
+<span class="kw">print</span>(<span class="cn">x</span> <span class="op">&gt;</span>  <span class="cn">y</span>,  <span class="cn">x</span> <span class="op">&lt;</span>  <span class="cn">y</span>)   <span class="cm"># True  False</span>
+<span class="kw">print</span>(<span class="cn">x</span> <span class="op">&gt;=</span> <span class="cn">y</span>,  <span class="cn">x</span> <span class="op">&lt;=</span> <span class="cn">y</span>)  <span class="cm"># True  False</span>
+
+<span class="cm"># Logical operators</span>
+<span class="kw">print</span>(<span class="cn">x</span> <span class="op">&gt;</span> <span class="nm">3</span> <span class="kw">and</span> <span class="cn">y</span> <span class="op">&lt;</span> <span class="nm">10</span>)  <span class="cm"># True</span>
+<span class="kw">print</span>(<span class="cn">x</span> <span class="op">&lt;</span> <span class="nm">3</span> <span class="kw">or</span>  <span class="cn">y</span> <span class="op">&gt;</span> <span class="nm">2</span>)   <span class="cm"># True</span>
+<span class="kw">print</span>(<span class="kw">not</span> (<span class="cn">x</span> <span class="op">==</span> <span class="cn">y</span>))      <span class="cm"># True</span>` },
+    ]
+  },
+  {
+    id:"selection", grade:"XI", icon:"🔀", title:"Selection Statements",
+    slo:"3.7.1–3.7.2", desc:"if, if-else, if-elif-else, nested if, pass.",
+    codes:[
+      { title:"Grade classifier — if-elif-else", tags:["Practical","ERQ"],
+        desc:"Assign letter grades based on marks input.",
+        code:`<span class="cn">marks</span> = <span class="fn">int</span>(<span class="fn">input</span>(<span class="st">"Enter marks (0-100): "</span>))
+
+<span class="kw">if</span> <span class="cn">marks</span> <span class="op">&gt;=</span> <span class="nm">80</span>:
+    <span class="kw">print</span>(<span class="st">"Grade: A"</span>)
+<span class="kw">elif</span> <span class="cn">marks</span> <span class="op">&gt;=</span> <span class="nm">60</span>:
+    <span class="kw">print</span>(<span class="st">"Grade: B"</span>)
+<span class="kw">elif</span> <span class="cn">marks</span> <span class="op">&gt;=</span> <span class="nm">40</span>:
+    <span class="kw">print</span>(<span class="st">"Grade: C"</span>)
+<span class="kw">else</span>:
+    <span class="kw">print</span>(<span class="st">"Grade: F — Fail"</span>)` },
+      { title:"Nested if — positive/negative/odd/even", tags:["CRQ","ERQ"],
+        desc:"First check sign, then parity. Classic nested-if exam question.",
+        code:`<span class="cn">n</span> = <span class="fn">int</span>(<span class="fn">input</span>(<span class="st">"Enter a number: "</span>))
+
+<span class="kw">if</span> <span class="cn">n</span> <span class="op">&gt;</span> <span class="nm">0</span>:
+    <span class="kw">print</span>(<span class="st">"Positive"</span>)
+    <span class="kw">if</span> <span class="cn">n</span> <span class="op">%</span> <span class="nm">2</span> <span class="op">==</span> <span class="nm">0</span>:
+        <span class="kw">print</span>(<span class="st">"Even"</span>)
+    <span class="kw">else</span>:
+        <span class="kw">print</span>(<span class="st">"Odd"</span>)
+<span class="kw">elif</span> <span class="cn">n</span> <span class="op">&lt;</span> <span class="nm">0</span>:
+    <span class="kw">print</span>(<span class="st">"Negative"</span>)
+<span class="kw">else</span>:
+    <span class="kw">print</span>(<span class="st">"Zero"</span>)` },
+      { title:"Utility bill calculator", tags:["ERQ"],
+        desc:"Slab-based electricity bill using if-elif-else. High-frequency exam program.",
+        code:`<span class="cn">meter</span> = <span class="fn">input</span>(<span class="st">"Meter number: "</span>)
+<span class="cn">consumer</span> = <span class="fn">input</span>(<span class="st">"Consumer name: "</span>)
+<span class="cn">units</span> = <span class="fn">int</span>(<span class="fn">input</span>(<span class="st">"Units consumed: "</span>))
+
+<span class="kw">if</span> <span class="cn">units</span> <span class="op">&lt;=</span> <span class="nm">100</span>:
+    <span class="cn">bill</span> = <span class="cn">units</span> <span class="op">*</span> <span class="nm">5</span>
+<span class="kw">elif</span> <span class="cn">units</span> <span class="op">&lt;=</span> <span class="nm">300</span>:
+    <span class="cn">bill</span> = <span class="nm">100</span><span class="op">*</span><span class="nm">5</span> + (<span class="cn">units</span><span class="op">-</span><span class="nm">100</span>) <span class="op">*</span> <span class="nm">8</span>
+<span class="kw">else</span>:
+    <span class="cn">bill</span> = <span class="nm">100</span><span class="op">*</span><span class="nm">5</span> + <span class="nm">200</span><span class="op">*</span><span class="nm">8</span> + (<span class="cn">units</span><span class="op">-</span><span class="nm">300</span>) <span class="op">*</span> <span class="nm">12</span>
+
+<span class="kw">print</span>(<span class="st">f"\n--- Bill for {consumer} (Meter: {meter}) ---"</span>)
+<span class="kw">print</span>(<span class="st">f"Units: {units}  |  Amount: Rs. {bill}"</span>)` },
+      { title:"Palindrome check using if-else", tags:["Practical","CRQ"],
+        desc:"Check if a string reads the same forwards and backwards.",
+        code:`<span class="cn">word</span> = <span class="fn">input</span>(<span class="st">"Enter a word: "</span>).lower().strip()
+
+<span class="kw">if</span> <span class="cn">word</span> <span class="op">==</span> <span class="cn">word</span>[<span class="op">::</span><span class="op">-</span><span class="nm">1</span>]:
+    <span class="kw">print</span>(<span class="st">f"'{word}' IS a palindrome."</span>)
+<span class="kw">else</span>:
+    <span class="kw">print</span>(<span class="st">f"'{word}' is NOT a palindrome."</span>)` },
+      { title:"pass as placeholder", tags:["CRQ"],
+        desc:"Use pass inside an if block as a legal empty statement.",
+        code:`<span class="cn">x</span> = <span class="nm">10</span>
+<span class="kw">if</span> <span class="cn">x</span> <span class="op">&gt;</span> <span class="nm">5</span>:
+    <span class="kw">pass</span>   <span class="cm"># TODO: implement this branch later</span>
+<span class="kw">else</span>:
+    <span class="kw">print</span>(<span class="st">"x is 5 or less"</span>)
+
+<span class="kw">print</span>(<span class="st">"Program continues after pass."</span>)` },
+    ]
+  },
+  {
+    id:"loops", grade:"XI", icon:"🔁", title:"Loops (for / while)",
+    slo:"3.8.1–3.8.5", desc:"for, while, nested loops, break, continue, exit().",
+    codes:[
+      { title:"for loop — print numbers and squares", tags:["Practical","CRQ"],
+        desc:"Basic for loop with range().",
+        code:`<span class="kw">for</span> <span class="cn">i</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">1</span>, <span class="nm">11</span>):
+    <span class="kw">print</span>(<span class="st">f"</span><span class="nm">{i}</span><span class="st">² = </span><span class="nm">{i**2}</span><span class="st">"</span>)` },
+      { title:"while loop — Fibonacci sequence up to 100", tags:["CRQ","ERQ"],
+        desc:"Classic while-loop program for Fibonacci.",
+        code:`<span class="cn">a</span>, <span class="cn">b</span> = <span class="nm">0</span>, <span class="nm">1</span>
+<span class="kw">print</span>(<span class="st">"Fibonacci sequence up to 100:"</span>)
+<span class="kw">while</span> <span class="cn">a</span> <span class="op">&lt;=</span> <span class="nm">100</span>:
+    <span class="kw">print</span>(<span class="cn">a</span>, <span class="kw">end</span>=<span class="st">" "</span>)
+    <span class="cn">a</span>, <span class="cn">b</span> = <span class="cn">b</span>, <span class="cn">a</span> + <span class="cn">b</span>` },
+      { title:"Nested for — multiplication table", tags:["ERQ","Practical"],
+        desc:"5×5 multiplication table using nested loops.",
+        code:`<span class="kw">print</span>(<span class="st">"Multiplication Table (5×5)\n"</span>)
+<span class="kw">for</span> <span class="cn">i</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">1</span>, <span class="nm">6</span>):
+    <span class="kw">for</span> <span class="cn">j</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">1</span>, <span class="nm">6</span>):
+        <span class="kw">print</span>(<span class="st">f"</span><span class="nm">{i*j:4}</span><span class="st">"</span>, <span class="kw">end</span>=<span class="st">""</span>)
+    <span class="kw">print</span>()  <span class="cm"># newline after each row</span>` },
+      { title:"break — first divisible by 7 and 5", tags:["CRQ"],
+        desc:"Exit loop early using break when condition is met.",
+        code:`<span class="kw">for</span> <span class="cn">n</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">1</span>, <span class="nm">51</span>):
+    <span class="kw">if</span> <span class="cn">n</span> <span class="op">%</span> <span class="nm">7</span> <span class="op">==</span> <span class="nm">0</span> <span class="kw">and</span> <span class="cn">n</span> <span class="op">%</span> <span class="nm">5</span> <span class="op">==</span> <span class="nm">0</span>:
+        <span class="kw">print</span>(<span class="st">f"First number divisible by 7 and 5: </span><span class="nm">{n}</span><span class="st">"</span>)
+        <span class="kw">break</span>` },
+      { title:"continue — skip multiples of 9", tags:["CRQ"],
+        desc:"Print multiples of 3 but skip those also divisible by 9.",
+        code:`<span class="kw">for</span> <span class="cn">i</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">3</span>, <span class="nm">31</span>, <span class="nm">3</span>):
+    <span class="kw">if</span> <span class="cn">i</span> <span class="op">%</span> <span class="nm">9</span> <span class="op">==</span> <span class="nm">0</span>:
+        <span class="kw">continue</span>   <span class="cm"># skip 9, 18, 27</span>
+    <span class="kw">print</span>(<span class="cn">i</span>, <span class="kw">end</span>=<span class="st">" "</span>)` },
+      { title:"Average, max, min from loop input", tags:["Practical","ERQ"],
+        desc:"Read numbers until 0; compute stats. Tests while + accumulator.",
+        code:`<span class="cn">nums</span> = []
+<span class="kw">while</span> <span class="kw">True</span>:
+    <span class="cn">n</span> = <span class="fn">float</span>(<span class="fn">input</span>(<span class="st">"Enter number (0 to stop): "</span>))
+    <span class="kw">if</span> <span class="cn">n</span> <span class="op">==</span> <span class="nm">0</span>:
+        <span class="kw">break</span>
+    <span class="cn">nums</span>.append(<span class="cn">n</span>)
+
+<span class="kw">if</span> <span class="cn">nums</span>:
+    <span class="kw">print</span>(<span class="st">f"Count:   </span><span class="nm">{len(nums)}</span><span class="st">"</span>)
+    <span class="kw">print</span>(<span class="st">f"Average: </span><span class="nm">{sum(nums)/len(nums):.2f}</span><span class="st">"</span>)
+    <span class="kw">print</span>(<span class="st">f"Maximum: </span><span class="nm">{max(nums)}</span><span class="st">"</span>)
+    <span class="kw">print</span>(<span class="st">f"Minimum: </span><span class="nm">{min(nums)}</span><span class="st">"</span>)` },
+      { title:"Count vowels and consonants", tags:["Practical"],
+        desc:"String traversal with loop + if-else.",
+        code:`<span class="cn">text</span> = <span class="fn">input</span>(<span class="st">"Enter a string: "</span>).lower()
+<span class="cn">vowels</span> = <span class="cn">consonants</span> = <span class="nm">0</span>
+
+<span class="kw">for</span> <span class="cn">ch</span> <span class="kw">in</span> <span class="cn">text</span>:
+    <span class="kw">if</span> <span class="cn">ch</span>.isalpha():
+        <span class="kw">if</span> <span class="cn">ch</span> <span class="kw">in</span> <span class="st">"aeiou"</span>:
+            <span class="cn">vowels</span> += <span class="nm">1</span>
+        <span class="kw">else</span>:
+            <span class="cn">consonants</span> += <span class="nm">1</span>
+
+<span class="kw">print</span>(<span class="st">f"Vowels: </span><span class="nm">{vowels}</span><span class="st">  Consonants: </span><span class="nm">{consonants}</span><span class="st">"</span>)` },
+      { title:"Prime numbers using nested loop", tags:["ERQ"],
+        desc:"Find all primes from 2 to 50.",
+        code:`<span class="kw">print</span>(<span class="st">"Prime numbers from 2 to 50:"</span>)
+<span class="kw">for</span> <span class="cn">n</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">2</span>, <span class="nm">51</span>):
+    <span class="cn">is_prime</span> = <span class="kw">True</span>
+    <span class="kw">for</span> <span class="cn">i</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">2</span>, <span class="cn">n</span>):
+        <span class="kw">if</span> <span class="cn">n</span> <span class="op">%</span> <span class="cn">i</span> <span class="op">==</span> <span class="nm">0</span>:
+            <span class="cn">is_prime</span> = <span class="kw">False</span>
+            <span class="kw">break</span>
+    <span class="kw">if</span> <span class="cn">is_prime</span>:
+        <span class="kw">print</span>(<span class="cn">n</span>, <span class="kw">end</span>=<span class="st">" "</span>)` },
+      { title:"Factorial using for loop", tags:["CRQ"],
+        desc:"Classic iterative factorial — also expected as function.",
+        code:`<span class="cn">n</span> = <span class="fn">int</span>(<span class="fn">input</span>(<span class="st">"Enter a positive integer: "</span>))
+<span class="cn">fact</span> = <span class="nm">1</span>
+<span class="kw">for</span> <span class="cn">i</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">1</span>, <span class="cn">n</span> + <span class="nm">1</span>):
+    <span class="cn">fact</span> <span class="op">*=</span> <span class="cn">i</span>
+<span class="kw">print</span>(<span class="st">f"</span><span class="nm">{n}</span><span class="st">! = </span><span class="nm">{fact}</span><span class="st">"</span>)` },
+    ]
+  },
+  {
+    id:"turtle", grade:"XI", icon:"🐢", title:"Turtle Graphics",
+    slo:"3.2.1–3.2.3", desc:"Drawing shapes using turtle library functions.",
+    codes:[
+      { title:"Draw a coloured square", tags:["Practical","CRQ"],
+        desc:"Uses forward() and right() with pencolor and fillcolor.",
+        code:`<span class="kw">import</span> <span class="bi">turtle</span>
+
+<span class="cn">t</span> = <span class="bi">turtle</span>.Turtle()
+<span class="bi">turtle</span>.bgcolor(<span class="st">"black"</span>)
+<span class="cn">t</span>.pencolor(<span class="st">"yellow"</span>)
+<span class="cn">t</span>.fillcolor(<span class="st">"orange"</span>)
+<span class="cn">t</span>.pensize(<span class="nm">2</span>)
+<span class="cn">t</span>.speed(<span class="nm">3</span>)
+
+<span class="cn">t</span>.begin_fill()
+<span class="kw">for</span> <span class="cn">_</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">4</span>):
+    <span class="cn">t</span>.forward(<span class="nm">100</span>)
+    <span class="cn">t</span>.right(<span class="nm">90</span>)
+<span class="cn">t</span>.end_fill()
+
+<span class="bi">turtle</span>.done()` },
+      { title:"Draw a hexagon with a loop", tags:["Practical"],
+        desc:"Outer angle for hexagon = 360/6 = 60°.",
+        code:`<span class="kw">import</span> <span class="bi">turtle</span>
+
+<span class="cn">t</span> = <span class="bi">turtle</span>.Turtle()
+<span class="cn">t</span>.fillcolor(<span class="st">"cyan"</span>)
+<span class="cn">t</span>.pencolor(<span class="st">"navy"</span>)
+<span class="cn">t</span>.pensize(<span class="nm">3</span>)
+
+<span class="cn">t</span>.begin_fill()
+<span class="kw">for</span> <span class="cn">_</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">6</span>):
+    <span class="cn">t</span>.forward(<span class="nm">100</span>)
+    <span class="cn">t</span>.left(<span class="nm">60</span>)
+<span class="cn">t</span>.end_fill()
+<span class="bi">turtle</span>.done()` },
+      { title:"Draw a triangle and fill", tags:["CRQ"],
+        desc:"Equilateral triangle: turn 120° each time.",
+        code:`<span class="kw">import</span> <span class="bi">turtle</span>
+
+<span class="cn">t</span> = <span class="bi">turtle</span>.Turtle()
+<span class="cn">t</span>.fillcolor(<span class="st">"blue"</span>)
+<span class="cn">t</span>.begin_fill()
+<span class="kw">for</span> <span class="cn">_</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">3</span>):
+    <span class="cn">t</span>.forward(<span class="nm">120</span>)
+    <span class="cn">t</span>.left(<span class="nm">120</span>)
+<span class="cn">t</span>.end_fill()
+<span class="bi">turtle</span>.done()` },
+    ]
+  },
+  {
+    id:"datetime", grade:"XI", icon:"📅", title:"Libraries & datetime Module",
+    slo:"3.3.1–3.3.3", desc:"Importing libraries; datetime format codes.",
+    codes:[
+      { title:"Display current date and time with format codes", tags:["Practical","CRQ"],
+        desc:"Uses strftime() with %A, %B, %Y, %H, %M, %S.",
+        code:`<span class="kw">from</span> <span class="bi">datetime</span> <span class="kw">import</span> <span class="bi">datetime</span>
+
+<span class="cn">now</span> = <span class="bi">datetime</span>.now()
+
+<span class="kw">print</span>(<span class="cn">now</span>.strftime(<span class="st">"Day:    %A"</span>))   <span class="cm"># e.g. Monday</span>
+<span class="kw">print</span>(<span class="cn">now</span>.strftime(<span class="st">"Month:  %B"</span>))   <span class="cm"># e.g. May</span>
+<span class="kw">print</span>(<span class="cn">now</span>.strftime(<span class="st">"Year:   %Y"</span>))   <span class="cm"># e.g. 2025</span>
+<span class="kw">print</span>(<span class="cn">now</span>.strftime(<span class="st">"Time:   %H:%M:%S"</span>))
+
+<span class="cm"># Full formatted string</span>
+<span class="kw">print</span>(<span class="cn">now</span>.strftime(<span class="st">"Today is %A, %d %B %Y — %I:%M %p"</span>))` },
+    ]
+  },
+  {
+    id:"debugging", grade:"XI", icon:"🐛", title:"Debugging",
+    slo:"3.9.1–3.9.6", desc:"print-debugging, assert, pdb; error types.",
+    codes:[
+      { title:"Identify error types", tags:["CRQ","MCQ"],
+        desc:"Examples of syntax, runtime, and logic errors.",
+        code:`<span class="cm"># SYNTAX ERROR — missing colon</span>
+<span class="cm"># if x > 5     ← SyntaxError</span>
+<span class="cm">#     print(x)</span>
+
+<span class="cm"># RUNTIME ERROR — division by zero</span>
+<span class="cm"># print(10 / 0)  ← ZeroDivisionError</span>
+
+<span class="cm"># LOGIC ERROR — wrong formula (no error thrown)</span>
+<span class="cn">radius</span> = <span class="nm">5</span>
+<span class="cn">area</span> = <span class="nm">2</span> <span class="op">*</span> <span class="nm">3.14</span> <span class="op">*</span> <span class="cn">radius</span>   <span class="cm"># WRONG: should be r²</span>
+<span class="kw">print</span>(<span class="st">"Area:"</span>, <span class="cn">area</span>)         <span class="cm"># gives wrong answer silently</span>` },
+      { title:"Using assert for debugging", tags:["CRQ"],
+        desc:"assert raises AssertionError if condition is False.",
+        code:`<span class="kw">def</span> <span class="fn">divide</span>(<span class="cn">a</span>, <span class="cn">b</span>):
+    <span class="kw">assert</span> <span class="cn">b</span> <span class="op">!=</span> <span class="nm">0</span>, <span class="st">"Denominator cannot be zero!"</span>
+    <span class="kw">return</span> <span class="cn">a</span> / <span class="cn">b</span>
+
+<span class="kw">print</span>(<span class="fn">divide</span>(<span class="nm">10</span>, <span class="nm">2</span>))   <span class="cm"># 5.0</span>
+<span class="kw">print</span>(<span class="fn">divide</span>(<span class="nm">10</span>, <span class="nm">0</span>))   <span class="cm"># AssertionError: Denominator cannot be zero!</span>` },
+      { title:"print-statement debugging", tags:["ERQ"],
+        desc:"Insert print() calls to trace variable values.",
+        code:`<span class="kw">def</span> <span class="fn">sum_list</span>(<span class="cn">data</span>):
+    <span class="cn">total</span> = <span class="nm">0</span>
+    <span class="kw">for</span> <span class="cn">i</span>, <span class="cn">val</span> <span class="kw">in</span> <span class="fn">enumerate</span>(<span class="cn">data</span>):
+        <span class="cn">total</span> += <span class="cn">val</span>
+        <span class="kw">print</span>(<span class="st">f"[DEBUG] step </span><span class="nm">{i+1}</span><span class="st">: added </span><span class="nm">{val}</span><span class="st">, total = </span><span class="nm">{total}</span><span class="st">"</span>)
+    <span class="kw">return</span> <span class="cn">total</span>
+
+<span class="cn">result</span> = <span class="fn">sum_list</span>([<span class="nm">3</span>, <span class="nm">7</span>, <span class="nm">2</span>, <span class="nm">8</span>])
+<span class="kw">print</span>(<span class="st">"Final sum:"</span>, <span class="cn">result</span>)` },
+    ]
+  },
+
+  // ── GRADE XII ─────────────────────────────────────────────────────────────
+  {
+    id:"functions", grade:"XII", icon:"⚙️", title:"Functions",
+    slo:"10.1.1–10.2.4", desc:"User-defined functions, default args, return, pass by value/ref.",
+    codes:[
+      { title:"Basic user-defined function", tags:["Practical","CRQ"],
+        desc:"Simple function with parameters and return value.",
+        code:`<span class="kw">def</span> <span class="fn">greet</span>(<span class="cn">name</span>, <span class="cn">age</span>):
+    <span class="st">"""Returns a greeting string."""</span>
+    <span class="kw">return</span> <span class="st">f"Hello {name}! You are {age} years old."</span>
+
+<span class="cn">msg</span> = <span class="fn">greet</span>(<span class="st">"Ali"</span>, <span class="nm">17</span>)
+<span class="kw">print</span>(<span class="cn">msg</span>)` },
+      { title:"Arithmetic operations with functions", tags:["Practical","ERQ"],
+        desc:"Four functions: add, subtract, multiply, divide.",
+        code:`<span class="kw">def</span> <span class="fn">add</span>(<span class="cn">a</span>, <span class="cn">b</span>):      <span class="kw">return</span> <span class="cn">a</span> + <span class="cn">b</span>
+<span class="kw">def</span> <span class="fn">subtract</span>(<span class="cn">a</span>, <span class="cn">b</span>): <span class="kw">return</span> <span class="cn">a</span> - <span class="cn">b</span>
+<span class="kw">def</span> <span class="fn">multiply</span>(<span class="cn">a</span>, <span class="cn">b</span>): <span class="kw">return</span> <span class="cn">a</span> * <span class="cn">b</span>
+<span class="kw">def</span> <span class="fn">divide</span>(<span class="cn">a</span>, <span class="cn">b</span>):
+    <span class="kw">if</span> <span class="cn">b</span> <span class="op">!=</span> <span class="nm">0</span>:
+        <span class="kw">return</span> <span class="cn">a</span> / <span class="cn">b</span>
+    <span class="kw">return</span> <span class="st">"Error: division by zero"</span>
+
+<span class="cn">x</span>, <span class="cn">y</span> = <span class="nm">12</span>, <span class="nm">4</span>
+<span class="kw">print</span>(<span class="fn">add</span>(<span class="cn">x</span>,<span class="cn">y</span>), <span class="fn">subtract</span>(<span class="cn">x</span>,<span class="cn">y</span>), <span class="fn">multiply</span>(<span class="cn">x</span>,<span class="cn">y</span>), <span class="fn">divide</span>(<span class="cn">x</span>,<span class="cn">y</span>))` },
+      { title:"Area of a circle — function with return", tags:["Practical","ERQ"],
+        desc:"Function demonstrates return statement and math module.",
+        code:`<span class="kw">import</span> <span class="bi">math</span>
+
+<span class="kw">def</span> <span class="fn">area_circle</span>(<span class="cn">radius</span>):
+    <span class="st">"""Returns area of a circle given its radius."""</span>
+    <span class="kw">return</span> <span class="bi">math</span>.pi <span class="op">*</span> <span class="cn">radius</span> <span class="op">**</span> <span class="nm">2</span>
+
+<span class="cn">r</span> = <span class="fn">float</span>(<span class="fn">input</span>(<span class="st">"Enter radius: "</span>))
+<span class="kw">print</span>(<span class="st">f"Area = </span><span class="nm">{area_circle(r):.4f}</span><span class="st">"</span>)` },
+      { title:"Default argument in function", tags:["CRQ","MCQ"],
+        desc:"Default parameter used when caller doesn't pass that argument.",
+        code:`<span class="kw">def</span> <span class="fn">power</span>(<span class="cn">base</span>, <span class="cn">exp</span>=<span class="nm">2</span>):   <span class="cm"># exp defaults to 2</span>
+    <span class="kw">return</span> <span class="cn">base</span> <span class="op">**</span> <span class="cn">exp</span>
+
+<span class="kw">print</span>(<span class="fn">power</span>(<span class="nm">5</span>))      <span class="cm"># 25  (uses default exp=2)</span>
+<span class="kw">print</span>(<span class="fn">power</span>(<span class="nm">5</span>, <span class="nm">3</span>))   <span class="cm"># 125 (overrides default)</span>` },
+      { title:"Factorial function", tags:["Practical","ERQ"],
+        desc:"User-defined function for n! using a loop.",
+        code:`<span class="kw">def</span> <span class="fn">factorial</span>(<span class="cn">n</span>):
+    <span class="kw">if</span> <span class="cn">n</span> <span class="op">&lt;</span> <span class="nm">0</span>:
+        <span class="kw">return</span> <span class="st">"Undefined for negative numbers"</span>
+    <span class="cn">result</span> = <span class="nm">1</span>
+    <span class="kw">for</span> <span class="cn">i</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">1</span>, <span class="cn">n</span> + <span class="nm">1</span>):
+        <span class="cn">result</span> <span class="op">*=</span> <span class="cn">i</span>
+    <span class="kw">return</span> <span class="cn">result</span>
+
+<span class="cn">num</span> = <span class="fn">int</span>(<span class="fn">input</span>(<span class="st">"Enter n: "</span>))
+<span class="kw">print</span>(<span class="st">f"</span><span class="nm">{num}</span><span class="st">! = </span><span class="nm">{factorial(num)}</span><span class="st">"</span>)` },
+      { title:"Average of numbers (function)", tags:["Practical"],
+        desc:"Accepts a list, returns average.",
+        code:`<span class="kw">def</span> <span class="fn">average</span>(<span class="cn">numbers</span>):
+    <span class="kw">if</span> <span class="kw">not</span> <span class="cn">numbers</span>:
+        <span class="kw">return</span> <span class="nm">0</span>
+    <span class="kw">return</span> <span class="fn">sum</span>(<span class="cn">numbers</span>) / <span class="fn">len</span>(<span class="cn">numbers</span>)
+
+<span class="cn">data</span> = [<span class="nm">85</span>, <span class="nm">90</span>, <span class="nm">78</span>, <span class="nm">92</span>, <span class="nm">88</span>]
+<span class="kw">print</span>(<span class="st">f"Average: </span><span class="nm">{average(data):.2f}</span><span class="st">"</span>)` },
+    ]
+  },
+  {
+    id:"oop", grade:"XII", icon:"🏗️", title:"OOP — Classes & Objects",
+    slo:"10.3.1–10.5.9", desc:"Classes, objects, access modifiers, inheritance, encapsulation, polymorphism.",
+    codes:[
+      { title:"Basic class with data members and methods", tags:["Practical","CRQ"],
+        desc:"Define class, create object, call member functions.",
+        code:`<span class="kw">class</span> <span class="fn">Student</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="cn">self</span>, <span class="cn">name</span>, <span class="cn">marks</span>):
+        <span class="cn">self</span>.name  = <span class="cn">name</span>
+        <span class="cn">self</span>.marks = <span class="cn">marks</span>
+
+    <span class="kw">def</span> <span class="fn">grade</span>(<span class="cn">self</span>):
+        <span class="kw">if</span> <span class="cn">self</span>.marks <span class="op">&gt;=</span> <span class="nm">80</span>: <span class="kw">return</span> <span class="st">"A"</span>
+        <span class="kw">if</span> <span class="cn">self</span>.marks <span class="op">&gt;=</span> <span class="nm">60</span>: <span class="kw">return</span> <span class="st">"B"</span>
+        <span class="kw">if</span> <span class="cn">self</span>.marks <span class="op">&gt;=</span> <span class="nm">40</span>: <span class="kw">return</span> <span class="st">"C"</span>
+        <span class="kw">return</span> <span class="st">"F"</span>
+
+    <span class="kw">def</span> <span class="fn">display</span>(<span class="cn">self</span>):
+        <span class="kw">print</span>(<span class="st">f"Name: </span><span class="nm">{self.name}</span><span class="st">  Marks: </span><span class="nm">{self.marks}</span><span class="st">  Grade: </span><span class="nm">{self.grade()}</span><span class="st">"</span>)
+
+<span class="cm"># Create objects</span>
+<span class="cn">s1</span> = <span class="fn">Student</span>(<span class="st">"Ali"</span>, <span class="nm">85</span>)
+<span class="cn">s2</span> = <span class="fn">Student</span>(<span class="st">"Sara"</span>, <span class="nm">55</span>)
+<span class="cn">s1</span>.<span class="fn">display</span>()
+<span class="cn">s2</span>.<span class="fn">display</span>()` },
+      { title:"Public and private access modifiers", tags:["Practical","CRQ"],
+        desc:"__ prefix for private; name mangling to access.",
+        code:`<span class="kw">class</span> <span class="fn">BankAccount</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="cn">self</span>, <span class="cn">owner</span>, <span class="cn">balance</span>):
+        <span class="cn">self</span>.owner    = <span class="cn">owner</span>           <span class="cm"># public</span>
+        <span class="cn">self</span>.__balance = <span class="cn">balance</span>        <span class="cm"># private</span>
+
+    <span class="kw">def</span> <span class="fn">deposit</span>(<span class="cn">self</span>, <span class="cn">amount</span>):
+        <span class="cn">self</span>.__balance += <span class="cn">amount</span>
+
+    <span class="kw">def</span> <span class="fn">get_balance</span>(<span class="cn">self</span>):             <span class="cm"># getter</span>
+        <span class="kw">return</span> <span class="cn">self</span>.__balance
+
+<span class="cn">acc</span> = <span class="fn">BankAccount</span>(<span class="st">"Ali"</span>, <span class="nm">5000</span>)
+<span class="cn">acc</span>.<span class="fn">deposit</span>(<span class="nm">1500</span>)
+<span class="kw">print</span>(<span class="cn">acc</span>.owner)                      <span class="cm"># Ali (public)</span>
+<span class="kw">print</span>(<span class="cn">acc</span>.<span class="fn">get_balance</span>())              <span class="cm"># 6500</span>
+<span class="cm"># print(acc.__balance)               # AttributeError!</span>
+<span class="kw">print</span>(<span class="cn">acc</span>._BankAccount__balance)      <span class="cm"># name mangling</span>` },
+      { title:"Inheritance — Vehicle base class", tags:["Practical","ERQ"],
+        desc:"Base class with derived Car and Bike overriding a method.",
+        code:`<span class="kw">class</span> <span class="fn">Vehicle</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="cn">self</span>, <span class="cn">brand</span>, <span class="cn">speed</span>):
+        <span class="cn">self</span>.brand = <span class="cn">brand</span>
+        <span class="cn">self</span>.speed = <span class="cn">speed</span>
+
+    <span class="kw">def</span> <span class="fn">describe</span>(<span class="cn">self</span>):
+        <span class="kw">print</span>(<span class="st">f"Vehicle: </span><span class="nm">{self.brand}</span><span class="st">, Max speed: </span><span class="nm">{self.speed}</span><span class="st"> km/h"</span>)
+
+<span class="kw">class</span> <span class="fn">Car</span>(<span class="fn">Vehicle</span>):
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="cn">self</span>, <span class="cn">brand</span>, <span class="cn">speed</span>, <span class="cn">doors</span>):
+        <span class="fn">super</span>().__init__(<span class="cn">brand</span>, <span class="cn">speed</span>)
+        <span class="cn">self</span>.doors = <span class="cn">doors</span>
+
+    <span class="kw">def</span> <span class="fn">describe</span>(<span class="cn">self</span>):           <span class="cm"># overriding</span>
+        <span class="kw">print</span>(<span class="st">f"Car: </span><span class="nm">{self.brand}</span><span class="st">, </span><span class="nm">{self.speed}</span><span class="st"> km/h, </span><span class="nm">{self.doors}</span><span class="st"> doors"</span>)
+
+<span class="kw">class</span> <span class="fn">Bike</span>(<span class="fn">Vehicle</span>):
+    <span class="kw">def</span> <span class="fn">describe</span>(<span class="cn">self</span>):
+        <span class="kw">print</span>(<span class="st">f"Bike: </span><span class="nm">{self.brand}</span><span class="st">, </span><span class="nm">{self.speed}</span><span class="st"> km/h (2 wheels)"</span>)
+
+<span class="cn">v</span> = <span class="fn">Vehicle</span>(<span class="st">"Generic"</span>, <span class="nm">100</span>)
+<span class="cn">c</span> = <span class="fn">Car</span>(<span class="st">"Toyota"</span>, <span class="nm">180</span>, <span class="nm">4</span>)
+<span class="cn">b</span> = <span class="fn">Bike</span>(<span class="st">"Honda"</span>, <span class="nm">140</span>)
+<span class="kw">for</span> <span class="cn">obj</span> <span class="kw">in</span> [<span class="cn">v</span>, <span class="cn">c</span>, <span class="cn">b</span>]:
+    <span class="cn">obj</span>.<span class="fn">describe</span>()` },
+      { title:"Polymorphism — Shape area", tags:["Practical","ERQ"],
+        desc:"Base class Shape with Circle and Rectangle overriding area().",
+        code:`<span class="kw">import</span> <span class="bi">math</span>
+
+<span class="kw">class</span> <span class="fn">Shape</span>:
+    <span class="kw">def</span> <span class="fn">area</span>(<span class="cn">self</span>):
+        <span class="kw">return</span> <span class="nm">0</span>
+
+<span class="kw">class</span> <span class="fn">Circle</span>(<span class="fn">Shape</span>):
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="cn">self</span>, <span class="cn">r</span>):
+        <span class="cn">self</span>.r = <span class="cn">r</span>
+    <span class="kw">def</span> <span class="fn">area</span>(<span class="cn">self</span>):
+        <span class="kw">return</span> <span class="bi">math</span>.pi <span class="op">*</span> <span class="cn">self</span>.r <span class="op">**</span> <span class="nm">2</span>
+
+<span class="kw">class</span> <span class="fn">Rectangle</span>(<span class="fn">Shape</span>):
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="cn">self</span>, <span class="cn">w</span>, <span class="cn">h</span>):
+        <span class="cn">self</span>.w, <span class="cn">self</span>.h = <span class="cn">w</span>, <span class="cn">h</span>
+    <span class="kw">def</span> <span class="fn">area</span>(<span class="cn">self</span>):
+        <span class="kw">return</span> <span class="cn">self</span>.w <span class="op">*</span> <span class="cn">self</span>.h
+
+<span class="cn">shapes</span> = [<span class="fn">Circle</span>(<span class="nm">5</span>), <span class="fn">Rectangle</span>(<span class="nm">4</span>, <span class="nm">6</span>), <span class="fn">Shape</span>()]
+<span class="kw">for</span> <span class="cn">s</span> <span class="kw">in</span> <span class="cn">shapes</span>:
+    <span class="kw">print</span>(<span class="st">f"{type(s).__name__} area: </span><span class="nm">{s.area():.2f}</span><span class="st">"</span>)` },
+      { title:"Constructor and destructor", tags:["CRQ","ERQ"],
+        desc:"__init__ is constructor, __del__ is destructor.",
+        code:`<span class="kw">class</span> <span class="fn">Connection</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="cn">self</span>, <span class="cn">host</span>):
+        <span class="cn">self</span>.host = <span class="cn">host</span>
+        <span class="kw">print</span>(<span class="st">f"[Constructor] Connected to </span><span class="nm">{self.host}</span><span class="st">"</span>)
+
+    <span class="kw">def</span> <span class="fn">__del__</span>(<span class="cn">self</span>):
+        <span class="kw">print</span>(<span class="st">f"[Destructor]  Disconnected from </span><span class="nm">{self.host}</span><span class="st">"</span>)
+
+<span class="cn">c</span> = <span class="fn">Connection</span>(<span class="st">"localhost"</span>)
+<span class="kw">del</span> <span class="cn">c</span>   <span class="cm"># triggers __del__</span>` },
+    ]
+  },
+  {
+    id:"lists", grade:"XII", icon:"📋", title:"Lists",
+    slo:"10.6.1–10.6.5", desc:"Create, modify, search; max, min, average with loops.",
+    codes:[
+      { title:"Create, add, modify, remove list items", tags:["Practical","CRQ"],
+        desc:"All four list operations: append, index-assign, remove, pop.",
+        code:`<span class="cn">fruits</span> = [<span class="st">"apple"</span>, <span class="st">"banana"</span>, <span class="st">"cherry"</span>]
+<span class="kw">print</span>(<span class="st">"Original:"</span>, <span class="cn">fruits</span>)
+
+<span class="cn">fruits</span>.append(<span class="st">"mango"</span>)          <span class="cm"># add</span>
+<span class="kw">print</span>(<span class="st">"After append:"</span>, <span class="cn">fruits</span>)
+
+<span class="cn">fruits</span>[<span class="nm">1</span>] = <span class="st">"blueberry"</span>          <span class="cm"># modify</span>
+<span class="kw">print</span>(<span class="st">"After modify:"</span>, <span class="cn">fruits</span>)
+
+<span class="cn">fruits</span>.remove(<span class="st">"cherry"</span>)          <span class="cm"># remove by value</span>
+<span class="kw">print</span>(<span class="st">"After remove:"</span>, <span class="cn">fruits</span>)
+
+<span class="cn">popped</span> = <span class="cn">fruits</span>.pop()            <span class="cm"># remove last</span>
+<span class="kw">print</span>(<span class="st">f"Popped: </span><span class="nm">{popped}</span><span class="st">, List: </span><span class="nm">{fruits}</span><span class="st">"</span>)` },
+      { title:"Max, min, average using for loop", tags:["Practical","ERQ"],
+        desc:"Store marks in 1D list; find stats without built-ins.",
+        code:`<span class="cn">marks</span> = []
+<span class="kw">for</span> <span class="cn">i</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">1</span>, <span class="nm">6</span>):
+    <span class="cn">m</span> = <span class="fn">int</span>(<span class="fn">input</span>(<span class="st">f"Marks for student </span><span class="nm">{i}</span><span class="st">: "</span>))
+    <span class="cn">marks</span>.append(<span class="cn">m</span>)
+
+<span class="cn">total</span> = <span class="cn">highest</span> = <span class="cn">lowest</span> = <span class="cn">marks</span>[<span class="nm">0</span>]
+<span class="kw">for</span> <span class="cn">m</span> <span class="kw">in</span> <span class="cn">marks</span>[<span class="nm">1</span>:]:
+    <span class="cn">total</span> += <span class="cn">m</span>
+    <span class="kw">if</span> <span class="cn">m</span> <span class="op">&gt;</span> <span class="cn">highest</span>: <span class="cn">highest</span> = <span class="cn">m</span>
+    <span class="kw">if</span> <span class="cn">m</span> <span class="op">&lt;</span> <span class="cn">lowest</span>:  <span class="cn">lowest</span>  = <span class="cn">m</span>
+
+<span class="kw">print</span>(<span class="st">f"Highest: </span><span class="nm">{highest}</span><span class="st">  Lowest: </span><span class="nm">{lowest}</span><span class="st">  Average: </span><span class="nm">{total/len(marks):.1f}</span><span class="st">"</span>)` },
+      { title:"Search for a value in a list", tags:["Practical","CRQ"],
+        desc:"Linear search using a for loop.",
+        code:`<span class="cn">nums</span> = [<span class="nm">10</span>, <span class="nm">25</span>, <span class="nm">37</span>, <span class="nm">42</span>, <span class="nm">58</span>, <span class="nm">66</span>]
+<span class="cn">target</span> = <span class="fn">int</span>(<span class="fn">input</span>(<span class="st">"Search for: "</span>))
+<span class="cn">found</span> = <span class="kw">False</span>
+
+<span class="kw">for</span> <span class="cn">i</span>, <span class="cn">val</span> <span class="kw">in</span> <span class="fn">enumerate</span>(<span class="cn">nums</span>):
+    <span class="kw">if</span> <span class="cn">val</span> <span class="op">==</span> <span class="cn">target</span>:
+        <span class="kw">print</span>(<span class="st">f"Found </span><span class="nm">{target}</span><span class="st"> at index </span><span class="nm">{i}</span><span class="st">"</span>)
+        <span class="cn">found</span> = <span class="kw">True</span>
+        <span class="kw">break</span>
+
+<span class="kw">if</span> <span class="kw">not</span> <span class="cn">found</span>:
+    <span class="kw">print</span>(<span class="st">f"</span><span class="nm">{target}</span><span class="st"> not found in list."</span>)` },
+    ]
+  },
+  {
+    id:"dicts", grade:"XII", icon:"📖", title:"Dictionaries",
+    slo:"10.7.1–10.7.3", desc:"Construct, retrieve, find by key.",
+    codes:[
+      { title:"Build and use a student dictionary", tags:["Practical","CRQ"],
+        desc:"Create dictionary, access values, update, iterate.",
+        code:`<span class="cn">student</span> = {
+    <span class="st">"name"</span>:  <span class="st">"Ali Saad"</span>,
+    <span class="st">"age"</span>:   <span class="nm">17</span>,
+    <span class="st">"grade"</span>: <span class="st">"A"</span>,
+    <span class="st">"marks"</span>: <span class="nm">88</span>
+}
+
+<span class="kw">print</span>(<span class="cn">student</span>[<span class="st">"name"</span>])          <span class="cm"># retrieve</span>
+<span class="cn">student</span>[<span class="st">"marks"</span>] = <span class="nm">92</span>           <span class="cm"># update</span>
+
+<span class="kw">for</span> <span class="cn">key</span>, <span class="cn">val</span> <span class="kw">in</span> <span class="cn">student</span>.items():
+    <span class="kw">print</span>(<span class="st">f"</span><span class="nm">{key}</span><span class="st">: </span><span class="nm">{val}</span><span class="st">"</span>)` },
+      { title:"Phone book — find by key", tags:["Practical","ERQ"],
+        desc:"Add, search, and delete contacts in a dictionary.",
+        code:`<span class="cn">phonebook</span> = {}
+
+<span class="kw">def</span> <span class="fn">add</span>(<span class="cn">name</span>, <span class="cn">num</span>):
+    <span class="cn">phonebook</span>[<span class="cn">name</span>] = <span class="cn">num</span>
+    <span class="kw">print</span>(<span class="st">f"Added: </span><span class="nm">{name}</span><span class="st">"</span>)
+
+<span class="kw">def</span> <span class="fn">search</span>(<span class="cn">name</span>):
+    <span class="kw">if</span> <span class="cn">name</span> <span class="kw">in</span> <span class="cn">phonebook</span>:
+        <span class="kw">print</span>(<span class="st">f"</span><span class="nm">{name}</span><span class="st">: </span><span class="nm">{phonebook[name]}</span><span class="st">"</span>)
+    <span class="kw">else</span>:
+        <span class="kw">print</span>(<span class="st">"Contact not found."</span>)
+
+<span class="fn">add</span>(<span class="st">"Ali"</span>, <span class="st">"0300-1234567"</span>)
+<span class="fn">add</span>(<span class="st">"Sara"</span>, <span class="st">"0321-9876543"</span>)
+<span class="fn">search</span>(<span class="st">"Ali"</span>)
+<span class="fn">search</span>(<span class="st">"Zara"</span>)` },
+    ]
+  },
+  {
+    id:"files", grade:"XII", icon:"💾", title:"File Handling",
+    slo:"10.8.1–10.8.3", desc:"Create, write, read, append — all four file operations.",
+    codes:[
+      { title:"Write to a file and read it back", tags:["Practical","CRQ"],
+        desc:"create → write three lines → read and print.",
+        code:`<span class="cm"># WRITE</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"students.txt"</span>, <span class="st">"w"</span>) <span class="kw">as</span> <span class="cn">f</span>:
+    <span class="cn">f</span>.write(<span class="st">"Ali Saad - 88\n"</span>)
+    <span class="cn">f</span>.write(<span class="st">"Sara Khan - 92\n"</span>)
+    <span class="cn">f</span>.write(<span class="st">"Zain Ali  - 75\n"</span>)
+<span class="kw">print</span>(<span class="st">"File written."</span>)
+
+<span class="cm"># READ</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"students.txt"</span>, <span class="st">"r"</span>) <span class="kw">as</span> <span class="cn">f</span>:
+    <span class="kw">print</span>(<span class="cn">f</span>.read())` },
+      { title:"Append data then read full file", tags:["Practical","ERQ"],
+        desc:"Demonstrates 'a' mode — adds without overwriting.",
+        code:`<span class="cm"># APPEND new record</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"students.txt"</span>, <span class="st">"a"</span>) <span class="kw">as</span> <span class="cn">f</span>:
+    <span class="cn">f</span>.write(<span class="st">"Hina Mir  - 95\n"</span>)
+<span class="kw">print</span>(<span class="st">"Record appended."</span>)
+
+<span class="cm"># READ all lines</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"students.txt"</span>, <span class="st">"r"</span>) <span class="kw">as</span> <span class="cn">f</span>:
+    <span class="cn">lines</span> = <span class="cn">f</span>.readlines()
+    <span class="kw">for</span> <span class="cn">i</span>, <span class="cn">line</span> <span class="kw">in</span> <span class="fn">enumerate</span>(<span class="cn">lines</span>, <span class="nm">1</span>):
+        <span class="kw">print</span>(<span class="st">f"</span><span class="nm">{i}</span><span class="st">. </span><span class="nm">{line.strip()}</span><span class="st">"</span>)` },
+      { title:"Complete file program — all 4 modes", tags:["ERQ"],
+        desc:"w → r → a → r to demonstrate the full file cycle.",
+        code:`<span class="cn">fname</span> = <span class="st">"notes.txt"</span>
+
+<span class="cm"># 1. CREATE &amp; WRITE</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="cn">fname</span>, <span class="st">"w"</span>) <span class="kw">as</span> <span class="cn">f</span>:
+    <span class="cn">f</span>.write(<span class="st">"Line 1: Python is powerful\n"</span>)
+    <span class="cn">f</span>.write(<span class="st">"Line 2: Files store data permanently\n"</span>)
+
+<span class="cm"># 2. READ</span>
+<span class="kw">print</span>(<span class="st">"--- After Write ---"</span>)
+<span class="kw">with</span> <span class="fn">open</span>(<span class="cn">fname</span>, <span class="st">"r"</span>) <span class="kw">as</span> <span class="cn">f</span>:
+    <span class="kw">print</span>(<span class="cn">f</span>.read())
+
+<span class="cm"># 3. APPEND</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="cn">fname</span>, <span class="st">"a"</span>) <span class="kw">as</span> <span class="cn">f</span>:
+    <span class="cn">f</span>.write(<span class="st">"Line 3: Appended without losing data\n"</span>)
+
+<span class="cm"># 4. READ AGAIN</span>
+<span class="kw">print</span>(<span class="st">"--- After Append ---"</span>)
+<span class="kw">with</span> <span class="fn">open</span>(<span class="cn">fname</span>, <span class="st">"r"</span>) <span class="kw">as</span> <span class="cn">f</span>:
+    <span class="kw">print</span>(<span class="cn">f</span>.read())` },
+    ]
+  },
+  {
+    id:"sql", grade:"XII", icon:"🗄️", title:"SQL with Python",
+    slo:"10.9–10.12", desc:"MS SQL database connection, DDL, DML, SELECT queries.",
+    codes:[
+      { title:"Connect to MS SQL and query data", tags:["Practical","CRQ"],
+        desc:"Uses pyodbc to connect; executes SELECT with WHERE and ORDER BY.",
+        code:`<span class="kw">import</span> <span class="bi">pyodbc</span>
+
+<span class="cm"># Connection string for MS SQL Server</span>
+<span class="cn">conn</span> = <span class="bi">pyodbc</span>.connect(
+    <span class="st">'DRIVER={SQL Server};'</span>
+    <span class="st">'SERVER=localhost;'</span>
+    <span class="st">'DATABASE=SchoolDB;'</span>
+    <span class="st">'Trusted_Connection=yes;'</span>
+)
+<span class="cn">cursor</span> = <span class="cn">conn</span>.cursor()
+
+<span class="cm"># SELECT with WHERE and ORDER BY</span>
+<span class="cn">cursor</span>.execute(<span class="st">"""
+    SELECT name, marks
+    FROM Students
+    WHERE marks &gt; 70
+    ORDER BY marks DESC
+"""</span>)
+
+<span class="kw">for</span> <span class="cn">row</span> <span class="kw">in</span> <span class="cn">cursor</span>.fetchall():
+    <span class="kw">print</span>(<span class="cn">row</span>.name, <span class="cn">row</span>.marks)
+
+<span class="cn">conn</span>.close()` },
+      { title:"Create table and insert records", tags:["Practical","ERQ"],
+        desc:"DDL CREATE TABLE + DML INSERT using Python.",
+        code:`<span class="kw">import</span> <span class="bi">pyodbc</span>
+
+<span class="cn">conn</span>   = <span class="bi">pyodbc</span>.connect(<span class="st">'DRIVER={SQL Server};SERVER=localhost;DATABASE=SchoolDB;Trusted_Connection=yes;'</span>)
+<span class="cn">cursor</span> = <span class="cn">conn</span>.cursor()
+
+<span class="cm"># DDL — create table</span>
+<span class="cn">cursor</span>.execute(<span class="st">"""
+    CREATE TABLE IF NOT EXISTS Students (
+        id    INT PRIMARY KEY,
+        name  VARCHAR(50),
+        marks INT
+    )
+"""</span>)
+
+<span class="cm"># DML — insert records</span>
+<span class="cn">students</span> = [(<span class="nm">1</span>,<span class="st">"Ali"</span>,<span class="nm">88</span>), (<span class="nm">2</span>,<span class="st">"Sara"</span>,<span class="nm">92</span>), (<span class="nm">3</span>,<span class="st">"Zain"</span>,<span class="nm">75</span>)]
+<span class="cn">cursor</span>.executemany(<span class="st">"INSERT INTO Students VALUES (?,?,?)"</span>, <span class="cn">students</span>)
+<span class="cn">conn</span>.commit()
+<span class="kw">print</span>(<span class="st">"Table created and records inserted."</span>)
+<span class="cn">conn</span>.close()` },
+    ]
+  },
+];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// BUILD UI
+// ─────────────────────────────────────────────────────────────────────────────
+let activeCat = null;
+let totalCodes = 0;
+
+function buildSidebar() {
+  const sb = document.getElementById('sidebar');
+  let xiHTML = '', xiiHTML = '';
+  let xiCount = 0, xiiCount = 0;
+
+  CATS.forEach(cat => {
+    const cnt = cat.codes.length;
+    totalCodes += cnt;
+    const item = `<div class="sb-item" data-id="${cat.id}" onclick="showCat('${cat.id}')">
+      <span class="ico">${cat.icon}</span>
+      <span class="nm">${cat.title}</span>
+      <span class="tag">${cnt}</span>
+    </div>`;
+    if (cat.grade === 'XI') { xiHTML += item; xiCount += cnt; }
+    else { xiiHTML += item; xiiCount += cnt; }
+  });
+
+  sb.innerHTML = `
+    <div class="sb-section">
+      <div class="sb-title" onclick="toggleSection(this)">
+        <span>◆ Grade XI — Part I</span><span class="cnt">${xiCount}</span>
+      </div>
+      <div class="sb-items">${xiHTML}</div>
+    </div>
+    <div class="sb-section">
+      <div class="sb-title" onclick="toggleSection(this)">
+        <span>◆ Grade XII — Part II</span><span class="cnt">${xiiCount}</span>
+      </div>
+      <div class="sb-items">${xiiHTML}</div>
+    </div>`;
+
+  document.getElementById('st-codes').textContent = totalCodes;
+}
+
+function buildWelcome() {
+  const grid = document.getElementById('welcomeGrid');
+  const stats = [
+    {n: CATS.filter(c=>c.grade==='XI').length,  l:'Grade XI Topics'},
+    {n: CATS.filter(c=>c.grade==='XII').length, l:'Grade XII Topics'},
+    {n: totalCodes, l:'Code Examples'},
+    {n: CATS.reduce((a,c)=>a+c.codes.filter(x=>x.tags.includes('ERQ')).length,0), l:'ERQ Programs'},
+    {n: CATS.reduce((a,c)=>a+c.codes.filter(x=>x.tags.includes('Practical')).length,0), l:'Practicals'},
+    {n: CATS.reduce((a,c)=>a+c.codes.filter(x=>x.tags.includes('MCQ')).length,0), l:'MCQ Programs'},
+  ];
+  grid.innerHTML = stats.map(s=>`<div class="wg-card"><div class="n">${s.n}</div><div class="l">${s.l}</div></div>`).join('');
+}
+
+function toggleSection(el) {
+  el.nextElementSibling.classList.toggle('collapsed');
+}
+
+function showCat(id) {
+  activeCat = id;
+  const cat = CATS.find(c=>c.id===id);
+  document.querySelectorAll('.sb-item').forEach(el=>el.classList.toggle('on', el.dataset.id===id));
+  document.getElementById('welcomeScreen').classList.add('hidden');
+  document.getElementById('searchView').classList.add('hidden');
+  const tv = document.getElementById('topicView');
+  tv.classList.remove('hidden');
+
+  const gradePill = cat.grade==='XI'
+    ? `<span class="pill pill-xi">Grade XI</span>`
+    : `<span class="pill pill-xii">Grade XII</span>`;
+
+  const tagSet = new Set(cat.codes.flatMap(c=>c.tags));
+  const tagPills = [...tagSet].map(t=>`<span class="th-tag">${t}</span>`).join('');
+
+  let html = `<div class="topic-header">
+    <div>
+      <h2>${cat.icon} ${cat.title}</h2>
+      <div class="desc">SLO ${cat.slo} &nbsp;·&nbsp; ${cat.desc}</div>
+      <div class="th-tags">${gradePill} <span class="th-tag">${cat.codes.length} programs</span> ${tagPills}</div>
+    </div>
+  </div>`;
+
+  // group by tag
+  const allTags = ['Practical','ERQ','CRQ','MCQ'];
+  const shown = new Set();
+  allTags.forEach(tag => {
+    const relevant = cat.codes.filter(c=>c.tags.includes(tag));
+    if(!relevant.length) return;
+    const displayTag = tag==='Practical'?'Practical / Lab Programs':tag==='ERQ'?'Extended Response (ERQ) Programs':tag==='CRQ'?'Constructed Response (CRQ) Programs':'MCQ-Style Programs';
+    const pillClass = tag==='Practical'?'prac':'exam';
+    html += `<div class="code-section">
+      <div class="section-label">${displayTag} <span class="pill ${pillClass}">${tag}</span></div>`;
+    relevant.forEach(code => {
+      if(shown.has(code.title)) return;
+      shown.add(code.title);
+      const tagBadges = code.tags.map(t=>`<span class="cm-tag ${t==='Practical'?'prac':t==='ERQ'||t==='CRQ'?'exam':''}">${t}</span>`).join('');
+      html += `<div class="code-card">
+        <div class="card-header">
+          <div class="card-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+          <div class="card-title">${code.title}</div>
+          <div class="card-meta">${tagBadges}</div>
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+        </div>
+        <div class="card-desc">${code.desc}</div>
+        <pre>${code.code}</pre>
+      </div>`;
+    });
+    html += `</div>`;
+  });
+
+  tv.innerHTML = html;
+  tv.scrollTop = 0;
+}
+
+function copyCode(btn) {
+  const pre = btn.closest('.code-card').querySelector('pre');
+  const text = pre.innerText;
+  navigator.clipboard.writeText(text).then(()=>{
+    btn.textContent='copied!';
+    btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='copy';btn.classList.remove('copied');},2000);
+  });
+}
+
+function doSearch(val) {
+  const q = val.trim().toLowerCase();
+  if(!q){
+    document.getElementById('searchView').classList.add('hidden');
+    if(activeCat) document.getElementById('topicView').classList.remove('hidden');
+    else document.getElementById('welcomeScreen').classList.remove('hidden');
+    return;
+  }
+  document.getElementById('topicView').classList.add('hidden');
+  document.getElementById('welcomeScreen').classList.add('hidden');
+  const sv = document.getElementById('searchView');
+  sv.classList.remove('hidden');
+
+  let results = [];
+  CATS.forEach(cat=>{
+    cat.codes.forEach(code=>{
+      if(code.title.toLowerCase().includes(q)||code.desc.toLowerCase().includes(q)||cat.title.toLowerCase().includes(q)){
+        results.push({code,cat});
+      }
+    });
+  });
+
+  if(!results.length){ sv.innerHTML=`<div style="color:#888;padding:3rem;text-align:center;font-family:'IBM Plex Mono',monospace;">No results for "${val}"</div>`; return; }
+
+  sv.innerHTML = `<div class="sr-header">Search: "${val}" — ${results.length} results</div>` +
+    results.map(({code,cat})=>`
+      <div class="sr-card" onclick="showCatAndScroll('${cat.id}','${code.title}')">
+        <span class="sr-badge">${cat.icon} ${cat.grade}</span>
+        <div>
+          <div class="sr-title">${code.title}</div>
+          <div class="sr-sub">${cat.title} · ${code.tags.join(' · ')}</div>
+        </div>
+      </div>`).join('');
+}
+
+function showCatAndScroll(catId) {
+  showCat(catId);
+}
+
+buildSidebar();
+buildWelcome();
+</script>
+</body>
+</html>
